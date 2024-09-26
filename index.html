@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Profit Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 500px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center">Trade Profit Calculator</h2>
+    <form id="profitCalcForm" class="row g-3">
+        <div class="col-md-6">
+            <label for="btcBuyRate" class="form-label">BTC Buy Rate ($)</label>
+            <input type="number" class="form-control" id="btcBuyRate" placeholder="Loading..." step="0.01" required>
+        </div>
+        <div class="col-md-6">
+            <label for="btcSellRate" class="form-label">BTC Sell Rate ($)</label>
+            <input type="number" class="form-control" id="btcSellRate" value="63250" step="0.01" required>
+        </div>
+        <div class="col-md-6">
+            <label for="usdtAmount" class="form-label">USDT Amount (to buy BTC)</label>
+            <input type="number" class="form-control" id="usdtAmount" value="27" step="0.01" required>
+        </div>
+        <div class="col-12">
+            <label for="profit" class="form-label">Profit (USDT)</label>
+            <input type="text" class="form-control" id="profit" readonly>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchBTCPrice(); // Fetch BTC price when the page loads
+    });
+
+    // Fetch BTC price from the API
+    function fetchBTCPrice() {
+        const apiUrl = 'https://api.livecoinwatch.com/coins/list';
+        const apiKey = 'a4438544-31bd-4a82-adf6-0fcb936b0188'; // Add your API key here
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey
+            },
+            body: JSON.stringify({
+                currency: 'USD',
+                codes: ['BTC']
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const btcPrice = data[0].rate; // Assuming `rate` is the BTC price in USD
+            document.getElementById('btcBuyRate').value = btcPrice.toFixed(2); // Update the BTC Buy Rate field with the live price
+            calculateProfit(); // Auto-calculate the profit
+        })
+        .catch(error => {
+            console.error('Error fetching BTC price:', error);
+        });
+    }
+
+    document.addEventListener('input', calculateProfit);
+
+    function calculateProfit() {
+        const btcBuyRate = parseFloat(document.getElementById('btcBuyRate').value);
+        const btcSellRate = parseFloat(document.getElementById('btcSellRate').value);
+        const usdtAmount = parseFloat(document.getElementById('usdtAmount').value);
+
+        if (isNaN(btcBuyRate) || isNaN(btcSellRate) || isNaN(usdtAmount)) {
+            return; // Exit if any input is invalid
+        }
+
+        // Calculate how much BTC you can buy with the given USDT at the buy rate
+        const btcAmount = usdtAmount / btcBuyRate;
+
+        // Calculate the value of that BTC when sold at the sell rate
+        const sellValue = btcAmount * btcSellRate;
+
+        // Profit is the difference between sell value and the initial USDT investment
+        const profit = sellValue - usdtAmount;
+
+        // Display the profit in the profit input field
+        document.getElementById('profit').value = profit.toFixed(2);  // Show profit in 2 decimal places
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
