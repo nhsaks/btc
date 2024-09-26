@@ -15,36 +15,59 @@
 <body>
 
 <div class="container">
-    <h2 class="text-center">Trade Profit Calculator</h2>
+    <h2 class="text-center py-2">Trade Profit Calculator</h2>
+    <div class="text-center py-2">
+        <!-- Radio buttons for selecting crypto -->
+        <input type="radio" name="crypto" id="btc" value="BTC" checked> BTC
+        <input type="radio" name="crypto" id="bnb" value="BNB"> BNB
+        <input type="radio" name="crypto" id="sol" value="SOL"> SOL
+        <input type="radio" name="crypto" id="xrp" value="XRP"> XRP
+    </div>
     <form id="profitCalcForm" class="row g-3">
         <div class="col-md-6">
-            <label for="btcBuyRate" class="form-label">BTC Buy Rate ($)</label>
-            <input type="number" class="form-control" id="btcBuyRate" placeholder="Loading..." step="0.01" required>
+            <label for="cryptoBuyRate" class="form-label text-success">Buy Rate ($)</label>
+            <input type="number" class="form-control" id="cryptoBuyRate" placeholder="Loading..." step="0.01" required>
         </div>
         <div class="col-md-6">
-            <label for="btcSellRate" class="form-label">BTC Sell Rate ($)</label>
-            <input type="number" class="form-control" id="btcSellRate" value="63250" step="0.01" required>
+            <label for="cryptoSellRate" class="form-label text-danger">Sell Rate ($)</label>
+            <input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.01" required>
         </div>
-        <div class="col-md-6">
-            <label for="usdtAmount" class="form-label">USDT Amount (to buy BTC)</label>
-            <input type="number" class="form-control" id="usdtAmount" value="27" step="0.01" required>
-        </div>
+
         <div class="col-12">
-            <label for="profit" class="form-label">Profit (USDT)</label>
-            <input type="text" class="form-control" id="profit" readonly>
+            <label for="usdtAmount" class="form-label">USDT Amount (to buy)</label>
+            <input type="number" class="form-control" id="usdtAmount" value="100" step="0.01" required>
+        </div>
+
+        <div class="col-md-4">
+            <label for="profitUSDT" class="form-label">Profit (USDT)</label>
+            <input type="text" class="form-control" id="profitUSDT" readonly>
+        </div>
+        <div class="col-md-4">
+            <label for="profitPKR" class="form-label">Profit (PKR)</label>
+            <input type="text" class="form-control" id="profitPKR" readonly>
+        </div>
+        <div class="col-md-4">
+            <label for="profitPercentage" class="form-label">Profit (%)</label>
+            <input type="text" class="form-control" id="profitPercentage" readonly>
         </div>
     </form>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        fetchBTCPrice(); // Fetch BTC price when the page loads
+        fetchCryptoPrice(); // Fetch initial crypto price when the page loads
     });
 
-    // Fetch BTC price from the API
-    function fetchBTCPrice() {
+    // Add event listener to radio buttons
+    document.querySelectorAll('input[name="crypto"]').forEach((radio) => {
+        radio.addEventListener('change', fetchCryptoPrice);
+    });
+
+    // Fetch crypto price based on selection
+    function fetchCryptoPrice() {
+        const selectedCrypto = document.querySelector('input[name="crypto"]:checked').value;
         const apiUrl = 'https://api.livecoinwatch.com/coins/list';
-        const apiKey = 'a4438544-31bd-4a82-adf6-0fcb936b0188'; // Add your API key here
+        const apiKey = 'a4438544-31bd-4a82-adf6-0fcb936b0188'; // Replace with your API key
 
         fetch(apiUrl, {
             method: 'POST',
@@ -54,42 +77,65 @@
             },
             body: JSON.stringify({
                 currency: 'USD',
-                codes: ['BTC']
+                codes: [selectedCrypto]
             })
         })
         .then(response => response.json())
         .then(data => {
-            const btcPrice = data[0].rate; // Assuming `rate` is the BTC price in USD
-            document.getElementById('btcBuyRate').value = btcPrice.toFixed(2); // Update the BTC Buy Rate field with the live price
+            const cryptoPrice = data[0].rate; // Assuming `rate` is the crypto price in USD
+            document.getElementById('cryptoBuyRate').value = cryptoPrice.toFixed(2); // Update Buy Rate field with live price
+            updateSellRate(); // Auto-update the Sell Rate with +0.5%
             calculateProfit(); // Auto-calculate the profit
         })
         .catch(error => {
-            console.error('Error fetching BTC price:', error);
+            console.error('Error fetching crypto price:', error);
         });
     }
 
-    document.addEventListener('input', calculateProfit);
+    document.addEventListener('input', function(event) {
+        if (event.target.id === 'cryptoBuyRate') {
+            updateSellRate(); // Update the sell rate if the buy rate changes
+        }
+        calculateProfit(); // Recalculate profit when any field is updated
+    });
+
+    // Update Sell Rate based on Buy Rate + 0.5%
+    function updateSellRate() {
+        const buyRate = parseFloat(document.getElementById('cryptoBuyRate').value);
+        if (!isNaN(buyRate)) {
+            const sellRate = buyRate + (buyRate * 0.005); // Add 0.5% to the Buy Rate
+            document.getElementById('cryptoSellRate').value = sellRate.toFixed(2);
+        }
+    }
 
     function calculateProfit() {
-        const btcBuyRate = parseFloat(document.getElementById('btcBuyRate').value);
-        const btcSellRate = parseFloat(document.getElementById('btcSellRate').value);
+        const cryptoBuyRate = parseFloat(document.getElementById('cryptoBuyRate').value);
+        const cryptoSellRate = parseFloat(document.getElementById('cryptoSellRate').value);
         const usdtAmount = parseFloat(document.getElementById('usdtAmount').value);
 
-        if (isNaN(btcBuyRate) || isNaN(btcSellRate) || isNaN(usdtAmount)) {
+        if (isNaN(cryptoBuyRate) || isNaN(cryptoSellRate) || isNaN(usdtAmount)) {
             return; // Exit if any input is invalid
         }
 
-        // Calculate how much BTC you can buy with the given USDT at the buy rate
-        const btcAmount = usdtAmount / btcBuyRate;
+        // Calculate how much of the crypto you can buy with the given USDT at the buy rate
+        const cryptoAmount = usdtAmount / cryptoBuyRate;
 
-        // Calculate the value of that BTC when sold at the sell rate
-        const sellValue = btcAmount * btcSellRate;
+        // Calculate the value of that crypto when sold at the sell rate
+        const sellValue = cryptoAmount * cryptoSellRate;
 
-        // Profit is the difference between sell value and the initial USDT investment
-        const profit = sellValue - usdtAmount;
+        // Profit is the difference between sell value and initial USDT investment
+        const profitUSDT = sellValue - usdtAmount;
 
-        // Display the profit in the profit input field
-        document.getElementById('profit').value = profit.toFixed(2);  // Show profit in 2 decimal places
+        // Calculate percentage profit
+        const profitPercentage = ((cryptoSellRate - cryptoBuyRate) / cryptoBuyRate) * 100;
+
+        // Display the profit in USDT and PKR (1 USDT = 285 PKR)
+        const profitPKR = profitUSDT * 285;
+
+        // Show profit and percentage in respective fields
+        document.getElementById('profitUSDT').value = profitUSDT.toFixed(2);
+        document.getElementById('profitPKR').value = profitPKR.toFixed(2);
+        document.getElementById('profitPercentage').value = profitPercentage.toFixed(2) + '%';
     }
 </script>
 
