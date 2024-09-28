@@ -1,59 +1,118 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Profit Calculator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Profit/Loss Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        .container {
-            max-width: 500px;
-            margin-top: 50px;
+       
+        .slider-container {
+            margin-top: 20px;
+        }
+        /* Style the sliders for better appearance */
+        input[type=range] {
+            width: 100%;
+        }
+        /* Hide the min and max labels */
+        .slider-label {
+            display: none;
+        }
+        .readonly-input {
+            background-color: #e9ecef;
         }
     </style>
 </head>
-<body>
-
-<div class="container">
-    <h2 class="text-center py-2">Trade Profit Calculator</h2>
+<body class="bg-light">
+<div class="container d-flex justify-content-center align-items-center py-5 ">
+<div class="card col-lg-8  border-light-subtle  p-3">
+    <div class="card-body">
+    <h3 class="text-center text-dark py-2">Profit Loss Calculator</h3>
     <div class="text-center py-2">
         <!-- Radio buttons for selecting crypto -->
-        <input type="radio" name="crypto" id="btc" value="BTC" checked> BTC
-        <input type="radio" name="crypto" id="bnb" value="BNB"> BNB
-        <input type="radio" name="crypto" id="sol" value="SOL"> SOL
-        <input type="radio" name="crypto" id="xrp" value="XRP"> XRP
+        <input class="form-check-input disable" type="radio" name="crypto" id="btc" value="BTC" checked> BTC
+        <input class="form-check-input" type="radio" name="crypto" id="bnb" value="BNB"> BNB
+        <input class="form-check-input" type="radio" name="crypto" id="sol" value="SOL"> SOL
+        <input class="form-check-input" type="radio" name="crypto" id="xrp" value="XRP"> XRP
+        <input class="form-check-input" type="radio" name="crypto" id="doge" value="DOGE"> DOGE <!-- Added DOGE -->
     </div>
-    <form id="profitCalcForm" class="row g-3">
-        <div class="col-md-6">
+    <div class="py-2"></div>
+    <form id="profitCalcForm" class="row g-2">
+        <!-- Buy Rate Field with Slider -->
+        <div class="col-md-4">
             <label for="cryptoBuyRate" class="form-label text-success">Buy Rate ($)</label>
-            <input type="number" class="form-control" id="cryptoBuyRate" placeholder="Loading..." step="0.01" required>
+            <input type="number" class="form-control mb-0" id="cryptoBuyRate" placeholder="Loading..." step="0.001" required>
+            <div class="slider-container mt-0 ">
+                <input class="form-range disable" type="range" class="form-range" id="buyRateSlider" min="0" max="100000" step="0.001">
+                <!-- Removed min and max labels -->
+            </div>
         </div>
-        <div class="col-md-6">
+        <!-- Sell Rate Field with Slider -->
+        <div class="col-md-4">
             <label for="cryptoSellRate" class="form-label text-danger">Sell Rate ($)</label>
-            <input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.01" required>
+            <input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.001" required>
+            <div class="slider-container mt-0 ">
+                <input type="range" class="form-range" id="sellRateSlider" min="0" max="100000" step="0.001">
+                <!-- Removed min and max labels -->
+            </div>
         </div>
 
-        <div class="col-12">
-            <label for="usdtAmount" class="form-label">USDT Amount (to buy)</label>
+        <!-- Stop Loss Field with Slider -->
+        <div class="col-md-4">
+            <label for="cryptoStopLoss" class="form-label text-warning">Stop Loss ($)</label>
+            <input type="number" class="form-control readonly-input" id="cryptoStopLoss" value="0" step="0.001" >
+            <div class="slider-container mt-0 ">
+                <input type="range" class="form-range" id="stopLossSlider" min="0" max="100000" step="0.001">
+                <!-- Removed min and max labels -->
+            </div>
+        </div>
+
+        <div class="col-12 ">
+           <div class="py-3"></div>
+            <label for="usdtAmount" class="form-label fw-bold">USDT Amount (to buy)</label>
             <input type="number" class="form-control" id="usdtAmount" value="100" step="0.01" required>
         </div>
 
         <div class="col-md-4">
-            <label for="profitUSDT" class="form-label">Profit (USDT)</label>
-            <input type="text" class="form-control" id="profitUSDT" readonly>
+            <label for="profitUSDT" class="form-label">Profit/Loss (USDT)</label>
+            <input type="text" class="form-control readonly-input" id="profitUSDT" readonly>
         </div>
         <div class="col-md-4">
-            <label for="profitPKR" class="form-label">Profit (PKR)</label>
+            <label for="profitPKR" class="form-label">Profit/Loss (PKR)</label>
             <input type="text" class="form-control" id="profitPKR" readonly>
         </div>
         <div class="col-md-4">
-            <label for="profitPercentage" class="form-label">Profit (%)</label>
+            <label for="profitPercentage" class="form-label">Profit/Loss (%)</label>
             <input type="text" class="form-control" id="profitPercentage" readonly>
         </div>
+        
     </form>
+    <div class="py-3"></div>
 </div>
-
+</div>
+    </div>
 <script>
+    // Throttle function to limit how often a function can run
+    function throttle(func, limit) {
+        let lastFunc;
+        let lastRan;
+        return function(...args) {
+            const context = this;
+            if (!lastRan) {
+                func.apply(context, args);
+                lastRan = Date.now();
+            } else {
+                clearTimeout(lastFunc);
+                lastFunc = setTimeout(function() {
+                    if ((Date.now() - lastRan) >= limit) {
+                        func.apply(context, args);
+                        lastRan = Date.now();
+                    }
+                }, limit - (Date.now() - lastRan));
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         fetchCryptoPrice(); // Fetch initial crypto price when the page loads
     });
@@ -63,10 +122,55 @@
         radio.addEventListener('change', fetchCryptoPrice);
     });
 
+    // Throttle the calculateProfit function to run at most once every 200ms
+    const throttledCalculateProfit = throttle(calculateProfit, 200);
+
+    // Add event listeners to sliders
+    document.getElementById('buyRateSlider').addEventListener('input', function() {
+        const sliderValue = parseFloat(this.value);
+        document.getElementById('cryptoBuyRate').value = sliderValue.toFixed(3); // Adjusted for step 0.001
+        updateSliders('buyRate');
+        throttledCalculateProfit();
+    });
+
+    document.getElementById('sellRateSlider').addEventListener('input', function() {
+        const sliderValue = parseFloat(this.value);
+        document.getElementById('cryptoSellRate').value = sliderValue.toFixed(3);
+        throttledCalculateProfit();
+    });
+
+    document.getElementById('stopLossSlider').addEventListener('input', function() {
+        const sliderValue = parseFloat(this.value);
+        document.getElementById('cryptoStopLoss').value = sliderValue.toFixed(3);
+        throttledCalculateProfit();
+    });
+
+    // Add event listeners to input fields to synchronize with sliders
+    document.getElementById('cryptoBuyRate').addEventListener('input', function() {
+        const buyRate = parseFloat(this.value);
+        const slider = document.getElementById('buyRateSlider');
+        if (!isNaN(buyRate)) {
+            slider.value = buyRate;
+            updateSliders('buyRate');
+            throttledCalculateProfit();
+        }
+    });
+
+    document.getElementById('cryptoSellRate').addEventListener('input', function() {
+        const sellRate = parseFloat(this.value);
+        const slider = document.getElementById('sellRateSlider');
+        if (!isNaN(sellRate)) {
+            slider.value = sellRate;
+            throttledCalculateProfit();
+        }
+    });
+
+    document.getElementById('usdtAmount').addEventListener('input', throttledCalculateProfit);
+
     // Fetch crypto price based on selection
     function fetchCryptoPrice() {
         const selectedCrypto = document.querySelector('input[name="crypto"]:checked').value;
-        const apiUrl = 'https://api.livecoinwatch.com/coins/list';
+        const apiUrl = 'https://api.livecoinwatch.com/coins/single'; // Updated endpoint
         const apiKey = 'a4438544-31bd-4a82-adf6-0fcb936b0188'; // Replace with your API key
 
         fetch(apiUrl, {
@@ -77,34 +181,63 @@
             },
             body: JSON.stringify({
                 currency: 'USD',
-                codes: [selectedCrypto]
+                code: selectedCrypto
             })
         })
         .then(response => response.json())
         .then(data => {
-            const cryptoPrice = data[0].rate; // Assuming `rate` is the crypto price in USD
-            document.getElementById('cryptoBuyRate').value = cryptoPrice.toFixed(2); // Update Buy Rate field with live price
-            updateSellRate(); // Auto-update the Sell Rate with +0.5%
-            calculateProfit(); // Auto-calculate the profit
+            if (data && data.rate) {
+                const cryptoPrice = data.rate; // Assuming `rate` is the crypto price in USD
+                document.getElementById('cryptoBuyRate').value = cryptoPrice.toFixed(3); // Update Buy Rate field with live price
+
+                // Update sliders based on fetched price
+                const buySlider = document.getElementById('buyRateSlider');
+                buySlider.min = (cryptoPrice * 0.5).toFixed(3); // 50% below current price
+                buySlider.max = (cryptoPrice * 1.5).toFixed(3); // 150% above current price
+                buySlider.value = cryptoPrice.toFixed(3);
+                // Removed min and max label updates
+
+                const sellSlider = document.getElementById('sellRateSlider');
+                sellSlider.min = (cryptoPrice * 0.5).toFixed(3); // Example range
+                sellSlider.max = (cryptoPrice * 2).toFixed(3); // Example range
+                sellSlider.value = (cryptoPrice * 1.01).toFixed(3); // 1% above Buy Rate
+                // Removed min and max label updates
+
+                const stopLossSlider = document.getElementById('stopLossSlider');
+                stopLossSlider.min = (cryptoPrice * 0.3).toFixed(3); // Example range
+                stopLossSlider.max = (cryptoPrice * 0.99).toFixed(3); // Example range
+                stopLossSlider.value = (cryptoPrice * 0.995).toFixed(3); // 0.5% below Buy Rate
+                // Removed min and max label updates
+
+                // Update Stop Loss field
+                document.getElementById('cryptoStopLoss').value = (cryptoPrice * 0.995).toFixed(3); // 0.5% below Buy Rate
+
+                // Update Sell Rate field with initial sell slider value
+                document.getElementById('cryptoSellRate').value = (cryptoPrice * 1.01).toFixed(3);
+
+                calculateProfit(); // Auto-calculate the profit
+            } else {
+                console.error('Invalid data structure:', data);
+                // Optionally, reset fields or notify the user
+                document.getElementById('cryptoSellRate').value = '0';
+            }
         })
         .catch(error => {
             console.error('Error fetching crypto price:', error);
+            // Optionally, reset fields or notify the user
+            document.getElementById('cryptoSellRate').value = '0';
         });
     }
 
-    document.addEventListener('input', function(event) {
-        if (event.target.id === 'cryptoBuyRate') {
-            updateSellRate(); // Update the sell rate if the buy rate changes
-        }
-        calculateProfit(); // Recalculate profit when any field is updated
-    });
+    // Update other sliders based on Buy Rate
+    function updateSliders(trigger) {
+        if (trigger === 'buyRate') {
+            const buyRate = parseFloat(document.getElementById('cryptoBuyRate').value);
+            const sellSlider = document.getElementById('sellRateSlider');
+            const stopLossSlider = document.getElementById('stopLossSlider');
 
-    // Update Sell Rate based on Buy Rate + 0.5%
-    function updateSellRate() {
-        const buyRate = parseFloat(document.getElementById('cryptoBuyRate').value);
-        if (!isNaN(buyRate)) {
-            const sellRate = buyRate + (buyRate * 0.005); // Add 0.5% to the Buy Rate
-            document.getElementById('cryptoSellRate').value = sellRate.toFixed(2);
+            // Optionally, adjust Sell Rate and Stop Loss sliders based on Buy Rate
+            // Here, we keep them independent as per user request
         }
     }
 
@@ -139,6 +272,6 @@
     }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
