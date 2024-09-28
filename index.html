@@ -24,11 +24,11 @@
     </style>
 </head>
 <body class="bg-light">
-<div class="container d-flex justify-content-center align-items-center py-5 ">
+<div class="container d-flex justify-content-center align-items-center py-2 ">
 <div class="card col-lg-8  border-light-subtle  p-3">
     <div class="card-body">
     <h3 class="text-center text-dark py-2">Profit Loss Calculator</h3>
-    <div class="text-center py-2">
+    <div class="text-center py-1">
         <!-- Radio buttons for selecting crypto -->
         <input class="form-check-input disable" type="radio" name="crypto" id="btc" value="BTC" checked> BTC
         <input class="form-check-input" type="radio" name="crypto" id="bnb" value="BNB"> BNB
@@ -36,22 +36,36 @@
         <input class="form-check-input" type="radio" name="crypto" id="xrp" value="XRP"> XRP
         <input class="form-check-input" type="radio" name="crypto" id="doge" value="DOGE"> DOGE <!-- Added DOGE -->
     </div>
-    <div class="py-2"></div>
+    <div class="py-1"></div>
     <form id="profitCalcForm" class="row g-2">
         <!-- Buy Rate Field with Slider -->
         <div class="col-md-4">
-            <label for="cryptoBuyRate" class="form-label text-success">Buy Rate ($)</label>
-            <input type="number" class="form-control mb-0" id="cryptoBuyRate" placeholder="Loading..." step="0.001" required>
-            <div class="slider-container mt-0 ">
+
+        <div class="input-group mb-0">
+
+    <span class="input-group-text border-end-none small fw-bold" id="basic-addon1">Buy($)</span>
+
+  <input type="number" class="form-control mb-0" id="cryptoBuyRate" placeholder="Loading..." step="0.001" required>
+  </div>
+
+
+
+           <div class="slider-container mt-0 ">
                 <input class="form-range disable" type="range" class="form-range" id="buyRateSlider" min="0" max="100000" step="0.001">
-                <!-- Removed min and max labels -->
+              
             </div>
         </div>
         <!-- Sell Rate Field with Slider -->
         <div class="col-md-4">
-            <label for="cryptoSellRate" class="form-label text-danger">Sell Rate ($)</label>
-            <input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.001" required>
-            <div class="slider-container mt-0 ">
+
+        <div class="input-group mb-0">
+
+<span class="input-group-text border-end-none small fw-bold" id="basic-addon1">Sell($)</span>
+
+<input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.001" required>
+</div>
+
+          <div class="slider-container mt-0 ">
                 <input type="range" class="form-range" id="sellRateSlider" min="0" max="100000" step="0.001">
                 <!-- Removed min and max labels -->
             </div>
@@ -59,32 +73,57 @@
 
         <!-- Stop Loss Field with Slider -->
         <div class="col-md-4">
-            <label for="cryptoStopLoss" class="form-label text-warning">Stop Loss ($)</label>
-            <input type="number" class="form-control readonly-input" id="cryptoStopLoss" value="0" step="0.001" >
-            <div class="slider-container mt-0 ">
+
+        <div class="input-group mb-0">
+
+<span class="input-group-text border-end-none small fw-bold" id="basic-addon1">Stop</span>
+
+<input type="number" class="form-control readonly-input" id="cryptoStopLoss" value="0" step="0.001" >
+</div>
+
+          <div class="slider-container mt-0 ">
                 <input type="range" class="form-range" id="stopLossSlider" min="0" max="100000" step="0.001">
                 <!-- Removed min and max labels -->
             </div>
         </div>
 
         <div class="col-12 ">
-           <div class="py-3"></div>
-            <label for="usdtAmount" class="form-label fw-bold">USDT Amount (to buy)</label>
+           <div class="py-1"></div>
+            <label for="usdtAmount" class="form-label fw-bold text-success">USDT Amount (to buy)</label>
             <input type="number" class="form-control" id="usdtAmount" value="100" step="0.01" required>
         </div>
 
         <div class="col-md-4">
-            <label for="profitUSDT" class="form-label">Profit/Loss (USDT)</label>
-            <input type="text" class="form-control readonly-input" id="profitUSDT" readonly>
+        <div class="input-group mb-0">
+
+<span class="input-group-text border-end-none small fw-bold" id="basic-addon1">+</span>
+
+<input type="text" class="form-control readonly-input" id="profitUSDT" readonly>
+</div>
+
+            <span for="profitUSDT" class="form-label small">Profit/Loss (USDT)</small>
         </div>
         <div class="col-md-4">
-            <label for="profitPKR" class="form-label">Profit/Loss (PKR)</label>
-            <input type="text" class="form-control" id="profitPKR" readonly>
+
+        <div class="input-group mb-0">
+
+<span class="input-group-text border-end-none small fw-bold" id="basic-addon1">PKR</span>
+
+<input type="text" class="form-control" id="profitPKR" readonly>
+</div>
+
+      
+          
         </div>
         <div class="col-md-4">
-            <label for="profitPercentage" class="form-label">Profit/Loss (%)</label>
-            <input type="text" class="form-control" id="profitPercentage" readonly>
-        </div>
+        <div class="input-group mb-0">
+
+<span class="input-group-text border-end-none small fw-bold" id="basic-addon1">(%)</span>
+
+<input type="text" class="form-control" id="profitPercentage" readonly>
+</div>
+         
+       </div>
         
     </form>
     <div class="py-3"></div>
