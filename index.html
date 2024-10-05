@@ -43,7 +43,7 @@
 </head>
 <body class="bg-light">
 <div class="container d-flex justify-content-center align-items-center py-2">
-    <div class="card col-lg-8 border-light-subtle p-3">
+    <div class="card col-lg-12 border-light-subtle p-3">
         <div class="card-body">
             <h3 class="text-center text-dark py-2">Profit Loss Calculator</h3>
             <div class="text-center py-1">
@@ -60,21 +60,18 @@
                     <input class="form-check-input" type="radio" name="crypto" id="sol" value="SOL">
                     <label class="form-check-label" for="sol">SOL</label>
                 </div>
+                <!-- Removed XRP and DOGE -->
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="crypto" id="xrp" value="XRP">
-                    <label class="form-check-label" for="xrp">XRP</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="crypto" id="doge" value="DOGE">
-                    <label class="form-check-label" for="doge">DOGE</label>
+                    <input class="form-check-input" type="radio" name="crypto" id="eth" value="ETH">
+                    <label class="form-check-label" for="eth">ETH</label>
                 </div>
             </div>
             <div class="py-1"></div>
-            <form id="profitCalcForm" class="row g-2">
+            <form id="profitCalcForm" class="row g-3">
                 <!-- Buy Rate Field with Slider -->
                 <div class="col-md-4">
                     <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">Buy($)</span>
+                        <span class="input-group-text border-end-0 small fw-bold" id="buyRateLabel">Buy($)</span>
                         <input type="number" class="form-control mb-0" id="cryptoBuyRate" placeholder="Loading..." step="0.001" required>
                     </div>
                     <div class="slider-container mt-0">
@@ -87,7 +84,7 @@
                 <!-- Sell Rate Field with Slider -->
                 <div class="col-md-4">
                     <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">Sell($)</span>
+                        <span class="input-group-text border-end-0 small fw-bold" id="sellRateLabel">Sell($)</span>
                         <input type="number" class="form-control" id="cryptoSellRate" value="0" step="0.001" required>
                     </div>
                     <div class="slider-container mt-0">
@@ -100,8 +97,8 @@
                 <!-- Stop Loss Field with Slider -->
                 <div class="col-md-4">
                     <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">Stop</span>
-                        <input type="number" class="form-control readonly-input" id="cryptoStopLoss" value="0" step="0.001">
+                        <span class="input-group-text border-end-0 small fw-bold" id="stopLossLabel">Stop</span>
+                        <input type="number" class="form-control readonly-input" id="cryptoStopLoss" value="0" step="0.001" readonly>
                     </div>
                     <div class="slider-container mt-0">
                         <div class="slider-wrapper">
@@ -109,14 +106,13 @@
                             <div class="slider-overlay active" data-slider="stopLossSlider"></div>
                         </div>
                     </div>
-                    <div class="py-1"></div>
                 </div>
                 <!-- USDT Amount Field with Slider -->
                 <div class="col-12">
                     <label for="usdtAmount" class="form-label fw-bold text-success">USDT Amount (to buy)</label>
                     <div class="input-group mb-0">
                         <input type="number" class="form-control" id="usdtAmount" value="100" step="0.01" required>
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">USDT</span>
+                        <span class="input-group-text border-end-0 small fw-bold" id="usdtAddon">USDT</span>
                         <input type="text" class="form-control" id="profitPercentage" readonly>
                     </div>
                     <!-- Slider for USDT Amount -->
@@ -130,16 +126,32 @@
                 <!-- Profit Fields -->
                 <div class="col-md-6">
                     <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">+</span>
+                        <span class="input-group-text border-end-0 small fw-bold" id="profitUSDTLabel">Profit (+ USDT)</span>
                         <input type="text" class="form-control readonly-input" id="profitUSDT" readonly>
                     </div>
-                    <span for="profitUSDT" class="form-label small text-secondary">Profit/Loss (USDT)</span>
                 </div>
                 <div class="col-md-6">
                     <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="basic-addon1">PKR</span>
+                        <span class="input-group-text border-end-0 small fw-bold" id="profitPKRLabel">PKR</span>
                         <input type="text" class="form-control" id="profitPKR" readonly>
                     </div>
+                </div>
+                <!-- BNB Fees Fields -->
+                <div class="col-md-6">
+                    <div class="input-group mb-0">
+                        <span class="input-group-text border-end-0 small fw-bold" id="bnbFeesLabel">Fees</span>
+                        <input type="text" class="form-control" id="bnbFees" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group mb-0">
+                        <span class="input-group-text border-end-0 small fw-bold" id="bnbFeesPKRLabel">PKR</span>
+                        <input type="text" class="form-control" id="bnbFeesPKR" readonly>
+                    </div>
+                </div>
+                <!-- Fee Information -->
+                <div class="col-12">
+                    <small class="text-muted">Fees: 0.1% per transaction with 25% discount applied.</small>
                 </div>
             </form>
             <div class="py-3"></div>
@@ -170,6 +182,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         fetchCryptoPrice(); // Fetch initial crypto price when the page loads
+        fetchBNBPrice(); // Fetch BNB price for PKR conversion
     });
 
     // Add event listener to radio buttons
@@ -302,7 +315,7 @@
                 // Update Sell Rate field with initial sell slider value
                 document.getElementById('cryptoSellRate').value = (cryptoPrice * 1.01).toFixed(3);
 
-                calculateProfit(); // Auto-calculate the profit
+                throttledCalculateProfit(); // Auto-calculate the profit
             } else {
                 console.error('Invalid data structure:', data);
                 // Optionally, reset fields or notify the user
@@ -313,6 +326,39 @@
             console.error('Error fetching crypto price:', error);
             // Optionally, reset fields or notify the user
             document.getElementById('cryptoSellRate').value = '0';
+        });
+    }
+
+    // Fetch BNB price to convert fees to PKR
+    function fetchBNBPrice() {
+        const apiUrl = 'https://api.livecoinwatch.com/coins/single'; // Same endpoint
+        const apiKey = 'a4438544-31bd-4a82-adf6-0fcb936b0188'; // Replace with your API key
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey
+            },
+            body: JSON.stringify({
+                currency: 'USD',
+                code: 'BNB'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.rate) {
+                const bnbPrice = data.rate; // BNB price in USD
+                window.bnbPriceUSD = bnbPrice; // Store globally for conversion
+                throttledCalculateProfit(); // Recalculate profit with BNB price
+            } else {
+                console.error('Invalid data structure for BNB:', data);
+                window.bnbPriceUSD = 0;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching BNB price:', error);
+            window.bnbPriceUSD = 0;
         });
     }
 
@@ -337,6 +383,31 @@
             return; // Exit if any input is invalid
         }
 
+        // Constants for fees
+        const STANDARD_FEE_PERCENT = 0.1; // 0.1%
+        const DISCOUNT_PERCENT = 25; // 25%
+
+        // Calculate fees
+        // Fees are calculated on the transaction amount in USD, then converted to BNB
+        // Buy Fee Calculation
+        const buyTransactionUSD = usdtAmount; // Assuming buying with USDT
+        const buyFeeUSD = buyTransactionUSD * (STANDARD_FEE_PERCENT / 100); // 0.1% of transaction
+        const discountedBuyFeeUSD = buyFeeUSD * ((100 - DISCOUNT_PERCENT) / 100); // Apply 25% discount
+
+        // Convert Buy Fee USD to BNB
+        const buyFeeBNB = window.bnbPriceUSD !== 0 ? discountedBuyFeeUSD / window.bnbPriceUSD : 0;
+
+        // Sell Fee Calculation
+        const sellTransactionUSD = (usdtAmount / cryptoBuyRate) * cryptoSellRate; // Amount obtained from selling
+        const sellFeeUSD = sellTransactionUSD * (STANDARD_FEE_PERCENT / 100); // 0.1% of transaction
+        const discountedSellFeeUSD = sellFeeUSD * ((100 - DISCOUNT_PERCENT) / 100); // Apply 25% discount
+
+        // Convert Sell Fee USD to BNB
+        const sellFeeBNB = window.bnbPriceUSD !== 0 ? discountedSellFeeUSD / window.bnbPriceUSD : 0;
+
+        // Total Fees in BNB
+        const totalFeesBNB = buyFeeBNB + sellFeeBNB;
+
         // Calculate how much of the crypto you can buy with the given USDT at the buy rate
         const cryptoAmount = usdtAmount / cryptoBuyRate;
 
@@ -344,7 +415,13 @@
         const sellValue = cryptoAmount * cryptoSellRate;
 
         // Profit is the difference between sell value and initial USDT investment
-        const profitUSDT = sellValue - usdtAmount;
+        let profitUSDT = sellValue - usdtAmount;
+
+        // Convert totalFeesBNB to USDT (assuming you can convert BNB to USDT at the BNB price)
+        const feesInUSDT = totalFeesBNB * window.bnbPriceUSD;
+
+        // Subtract fees from profit
+        profitUSDT -= feesInUSDT;
 
         // Calculate percentage profit
         const profitPercentage = ((cryptoSellRate - cryptoBuyRate) / cryptoBuyRate) * 100;
@@ -352,10 +429,17 @@
         // Display the profit in USDT and PKR (1 USDT = 285 PKR)
         const profitPKR = profitUSDT * 285;
 
+        // Calculate total fees in PKR
+        const totalFeesPKR = totalFeesBNB * window.bnbPriceUSD * 285;
+
         // Show profit and percentage in respective fields
         document.getElementById('profitUSDT').value = profitUSDT.toFixed(2);
-        document.getElementById('profitPKR').value = profitPKR.toFixed(2);
+        document.getElementById('profitPKR').value = Math.round(profitPKR); // Rounded to integer
         document.getElementById('profitPercentage').value = profitPercentage.toFixed(2) + '%';
+
+        // Show fees in BNB and PKR
+        document.getElementById('bnbFees').value = totalFeesBNB.toFixed(6) + ' BNB';
+        document.getElementById('bnbFeesPKR').value = Math.round(totalFeesPKR); // Rounded to integer
     }
 </script>
 
