@@ -39,6 +39,18 @@
         .slider-overlay.active {
             cursor: pointer;
         }
+        /* Table styling */
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: center;
+            padding: 10px;
+        }
+        .tw-bold {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -123,32 +135,47 @@
                         </div>
                     </div>
                 </div>
-                <!-- Profit Fields -->
-                <div class="col-md-6">
-                    <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="profitUSDTLabel">Profit (+ USDT)</span>
-                        <input type="text" class="form-control readonly-input" id="profitUSDT" readonly>
-                    </div>
+
+                <!-- Updated Table for Profit and Fees -->
+                <div class="col-12">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>USDT</th>
+                                <th>PKR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="tw-bold">Profit</td>
+                                <td id="profitUSDT">0</td>
+                                <td id="profitPKR">0</td>
+                            </tr>
+                            <tr>
+                                <td class="tw-bold">Buy Fees</td>
+                                <td id="buyFeesUSDT">0</td>
+                                <td id="buyFeesPKR">0</td>
+                            </tr>
+                            <tr>
+                                <td class="tw-bold">Sell Fees</td>
+                                <td id="sellFeesUSDT">0</td>
+                                <td id="sellFeesPKR">0</td>
+                            </tr>
+                            <tr>
+                                <td class="tw-bold">Total Fees</td>
+                                <td id="totalFeesUSDT">0</td>
+                                <td id="totalFeesPKR">0</td>
+                            </tr>
+                            <tr>
+                                <td class="tw-bold">Total Profit</td>
+                                <td id="totalProfitUSDT">0</td>
+                                <td id="totalProfitPKR">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-md-6">
-                    <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="profitPKRLabel">PKR</span>
-                        <input type="text" class="form-control" id="profitPKR" readonly>
-                    </div>
-                </div>
-                <!-- BNB Fees Fields -->
-                <div class="col-md-6">
-                    <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="bnbFeesLabel">Fees</span>
-                        <input type="text" class="form-control" id="bnbFees" readonly>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="input-group mb-0">
-                        <span class="input-group-text border-end-0 small fw-bold" id="bnbFeesPKRLabel">PKR</span>
-                        <input type="text" class="form-control" id="bnbFeesPKR" readonly>
-                    </div>
-                </div>
+
                 <!-- Fee Information -->
                 <div class="col-12">
                     <small class="text-muted">Fees: 0.1% per transaction with 25% discount applied.</small>
@@ -398,7 +425,8 @@
         const buyFeeBNB = window.bnbPriceUSD !== 0 ? discountedBuyFeeUSD / window.bnbPriceUSD : 0;
 
         // Sell Fee Calculation
-        const sellTransactionUSD = (usdtAmount / cryptoBuyRate) * cryptoSellRate; // Amount obtained from selling
+        const cryptoAmount = usdtAmount / cryptoBuyRate;
+        const sellTransactionUSD = cryptoAmount * cryptoSellRate; // Amount obtained from selling
         const sellFeeUSD = sellTransactionUSD * (STANDARD_FEE_PERCENT / 100); // 0.1% of transaction
         const discountedSellFeeUSD = sellFeeUSD * ((100 - DISCOUNT_PERCENT) / 100); // Apply 25% discount
 
@@ -408,20 +436,19 @@
         // Total Fees in BNB
         const totalFeesBNB = buyFeeBNB + sellFeeBNB;
 
-        // Calculate how much of the crypto you can buy with the given USDT at the buy rate
-        const cryptoAmount = usdtAmount / cryptoBuyRate;
+        // Convert fees to USDT
+        const buyFeesUSDT = buyFeeBNB * window.bnbPriceUSD;
+        const sellFeesUSDT = sellFeeBNB * window.bnbPriceUSD;
+        const totalFeesUSDT = buyFeesUSDT + sellFeesUSDT;
 
         // Calculate the value of that crypto when sold at the sell rate
         const sellValue = cryptoAmount * cryptoSellRate;
 
-        // Profit is the difference between sell value and initial USDT investment
-        let profitUSDT = sellValue - usdtAmount;
+        // Calculate Profit before fees
+        const profitUSDT = sellValue - usdtAmount;
 
-        // Convert totalFeesBNB to USDT (assuming you can convert BNB to USDT at the BNB price)
-        const feesInUSDT = totalFeesBNB * window.bnbPriceUSD;
-
-        // Subtract fees from profit
-        profitUSDT -= feesInUSDT;
+        // Calculate Total Profit after fees
+        const totalProfitUSDT = profitUSDT - totalFeesUSDT;
 
         // Calculate percentage profit
         const profitPercentage = ((cryptoSellRate - cryptoBuyRate) / cryptoBuyRate) * 100;
@@ -429,19 +456,38 @@
         // Display the profit in USDT and PKR (1 USDT = 285 PKR)
         const profitPKR = profitUSDT * 285;
 
-        // Calculate total fees in PKR
-        const totalFeesPKR = totalFeesBNB * window.bnbPriceUSD * 285;
+        // Calculate fees in PKR
+        const buyFeesPKR = buyFeesUSDT * 285;
+        const sellFeesPKR = sellFeesUSDT * 285;
+        const totalFeesPKR = totalFeesUSDT * 285;
 
-        // Show profit and percentage in respective fields
-        document.getElementById('profitUSDT').value = profitUSDT.toFixed(2);
-        document.getElementById('profitPKR').value = Math.round(profitPKR); // Rounded to integer
+        // Calculate Total Profit in PKR
+        const totalProfitPKR = totalProfitUSDT * 285;
+
+        // Show profit before fees in the table
+        document.getElementById('profitUSDT').textContent = profitUSDT.toFixed(2);
+        document.getElementById('profitPKR').textContent = Math.round(profitPKR); // Rounded to integer
         document.getElementById('profitPercentage').value = profitPercentage.toFixed(2) + '%';
 
-        // Show fees in BNB and PKR
-        document.getElementById('bnbFees').value = totalFeesBNB.toFixed(6) + ' BNB';
-        document.getElementById('bnbFeesPKR').value = Math.round(totalFeesPKR); // Rounded to integer
+        // Show buy fees in USDT and PKR
+        document.getElementById('buyFeesUSDT').textContent = buyFeesUSDT.toFixed(2);
+        document.getElementById('buyFeesPKR').textContent = Math.round(buyFeesPKR); // Rounded to integer
+
+        // Show sell fees in USDT and PKR
+        document.getElementById('sellFeesUSDT').textContent = sellFeesUSDT.toFixed(2);
+        document.getElementById('sellFeesPKR').textContent = Math.round(sellFeesPKR); // Rounded to integer
+
+        // Show total fees in USDT and PKR
+        document.getElementById('totalFeesUSDT').textContent = totalFeesUSDT.toFixed(2);
+        document.getElementById('totalFeesPKR').textContent = Math.round(totalFeesPKR); // Rounded to integer
+
+        // Show total profit after fees in the table
+        document.getElementById('totalProfitUSDT').textContent = totalProfitUSDT.toFixed(2);
+        document.getElementById('totalProfitPKR').textContent = Math.round(totalProfitPKR); // Rounded to integer
     }
 </script>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
